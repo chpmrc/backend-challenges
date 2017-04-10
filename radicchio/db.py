@@ -6,11 +6,11 @@ class Db(dict):
         self._meta = dict()
         self._db = dict()
 
-    def __setitem__(self, key, val, ttl=None):
+    def __setitem__(self, key, val):
         self._db[key] = val
         self._meta[key] = {
             'created': time.time(),
-            'ttl': ttl
+            'ttl': None
         }
 
     def __getitem__(self, key):
