@@ -2,8 +2,6 @@ from db import Db
 
 class Radicchio(object):
 
-    db = Db()
-
     STATUSES = {
         'ok': 'OK',
         'error': 'ERROR'
@@ -13,6 +11,9 @@ class Radicchio(object):
         'unknown_command': 'Unknown command',
         'not_an_integer': 'The value is not an integer'
     }
+
+    def __init__(self):
+        self.db = Db()
 
     def handle(self, command, args={}):
         command = command.lower()
