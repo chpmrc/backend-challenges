@@ -65,4 +65,5 @@ class Radicchio(object):
         return self._add(key, -1)
 
     def expire(self, key, ttl):
+        self.db.set_ttl(key, ttl)
         return ttl
