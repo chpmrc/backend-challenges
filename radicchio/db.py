@@ -43,17 +43,11 @@ class Db(dict):
 
     def _maintain(self):
         # Like in Redis: keep evicting expired keys as long as the evicted keys are 25% of the selected ones
-        keys = self._db.keys()
-        del_count = 0
-        if len(keys) > self.MAX_KEYS:
-            while del_count == 0 or del_count > self.MAX_KEYS / 4:
-                del_count = 0
-                now = time.time()
-                selected = random.sample(keys, self.MAX_KEYS)
-                for s in selected:
-                    if self._expired(s):
-                        del self[key]
-                        del_count += 1
+        to_evict_count = self.key_count() - self.MAX_KEYS
+        items = nlargest(self._accesses, to_evict_count) if to_evict_count > 0 else []
+        for i in items:
+            key = i[1]
+            del self[key]
 
     def set_ttl(self, key, ttl):
         self._meta[key] = {
