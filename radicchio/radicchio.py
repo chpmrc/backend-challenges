@@ -38,6 +38,15 @@ class Radicchio(object):
         response.update(dict(status=status))
         return response
 
+    def _add(self, key, num):
+        try:
+            val = self.db[key] + num
+            self.db[key] = val
+        except KeyError:
+            val = 1
+            self.db[key] = val
+        return val
+
     def set(self, key, value):
         self.db[key] = value
 
@@ -48,10 +57,7 @@ class Radicchio(object):
         del self.db[key]
 
     def incr(self, key):
-        try:
-            val = self.db[key] + 1
-            self.db[key] = val
-        except KeyError:
-            val = 1
-            self.db[key] = val
-        return val
+        return self._add(key, +1)
+
+    def decr(self, key):
+        return self._add(key, -1)
