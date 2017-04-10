@@ -1,4 +1,5 @@
 import unittest
+import time
 from radicchio import Radicchio
 
 
@@ -58,6 +59,22 @@ class TestRadicchio(unittest.TestCase):
         payload.update(dict(args={'key': 'b'}))
         response = self.r.handle(**payload)
         self.assertEqual(response['status'], 'ERROR')  # Not an integer
+
+    def test_expire(self):
+        payload = {
+            'command': 'EXPIRE',
+            'args': {
+                'key': 'a',
+                'ttl': 1
+            }
+        }
+        response = self.r.handle(**payload)
+        self.assertEqual(response['status'], 'OK')
+        time.sleep(1)
+        payload.update(dict(command='GET', args={'key': 'a'}))
+        response = self.r.handle(**payload)
+        self.assertEqual(response['status'], 'OK')
+        self.assertEqual(response['result'], None)
 
 
 if __name__ == '__main__':

@@ -61,3 +61,6 @@ class Radicchio(object):
 
     def decr(self, key):
         return self._add(key, -1)
+
+    def expire(self, key, ttl):
+        return ttl
