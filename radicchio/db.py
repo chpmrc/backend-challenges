@@ -30,5 +30,5 @@ class Db(dict):
         }
 
     def get_ttl(self, key):
-        meta = self._meta[key]
-        return int(meta['created'] + meta['ttl'] - time.time())
+        meta = self._meta.get(key)
+        return meta['ttl'] if meta else None

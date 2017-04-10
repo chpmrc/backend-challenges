@@ -24,15 +24,20 @@ class Radicchio(object):
             fn = getattr(self, command)
             result = fn(**args)
             status = self.STATUSES['ok']
-        except AttributeError:
-            message = self.MESSAGES['unknown_command']
-        except KeyError:
-            if command == 'get':
-                status = self.STATUSES['ok']
-                response.update(dict(result=None))
-        except TypeError:
-            if command == 'incr' or command == 'decr':
-                response.update(dict(message=self.MESSAGES['not_an_integer']))
+        except Exception as e:
+            if isinstance(e, AttributeError):
+                message = self.MESSAGES['unknown_command']
+            if isinstance(e, KeyError):
+                if command == 'get':
+                    status = self.STATUSES['ok']
+                    response.update(dict(result=None))
+                else: 
+                    message = e
+            if isinstance(e, TypeError):
+                if command == 'incr' or command == 'decr':
+                    response.update(dict(message=self.MESSAGES['not_an_integer']))
+                else: 
+                    message = e
         if status == self.STATUSES['error']:
             response.update(dict(message=message))
         elif result is not None:
@@ -66,4 +71,6 @@ class Radicchio(object):
 
     def expire(self, key, ttl):
         self.db.set_ttl(key, ttl)
-        return ttl
+
+    def ttl(self, key):
+        return self.db.get_ttl(key)
