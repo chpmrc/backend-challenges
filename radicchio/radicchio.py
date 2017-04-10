@@ -22,6 +22,9 @@ class Radicchio(object):
             status = self.STATUSES['ok']
         except AttributeError:
             message = self.MESSAGES['unknown_command']
+        except KeyError:
+            status = self.STATUSES['ok']
+            response.update(dict(result=None))
         if status == self.STATUSES['error']:
             response.update(dict(message=message))
         elif result is not None:
@@ -31,3 +34,6 @@ class Radicchio(object):
 
     def set(self, key, value):
         self.db[key] = value
+
+    def get(self, key):
+        return self.db[key]
