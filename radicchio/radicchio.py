@@ -37,3 +37,6 @@ class Radicchio(object):
 
     def get(self, key):
         return self.db[key]
+
+    def delete(self, key):
+        del self.db[key]
