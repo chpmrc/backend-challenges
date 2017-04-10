@@ -96,5 +96,8 @@ class TestRadicchio(unittest.TestCase):
         self.assertEqual(response['status'], 'OK', response.get('message'))
         self.assertEqual(response['result'], 1)
 
+    def test_purge(self):
+        
+
 if __name__ == '__main__':
     unittest.main()
