@@ -1,5 +1,6 @@
 import time
 import random
+from heapq import *
 
 class Db(dict):
 
@@ -8,17 +9,21 @@ class Db(dict):
     def __init__(self, *args, **kwargs):
         self._meta = dict()
         self._db = dict()
+        self._accesses = list()
 
     def __setitem__(self, key, val):
+        now = int(time.time())
         self._db[key] = val
         self._meta[key] = {
-            'created': time.time(),
+            'created': now,
             'ttl': None
         }
+        heappush(self._accesses, (now, key))
         self._maintain()
 
     def __getitem__(self, key):
         now = time.time()
+        self._meta[key]['last_access'] = now
         if self._expired(key):
             del self[key]
         return self._db[key]
@@ -59,3 +64,6 @@ class Db(dict):
     def get_ttl(self, key):
         meta = self._meta.get(key)
         return meta['ttl'] if meta else None
+
+    def key_count(self):
+        return len(self._db.keys())

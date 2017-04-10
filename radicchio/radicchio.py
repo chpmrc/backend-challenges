@@ -47,6 +47,9 @@ class Radicchio(object):
     def ttl(self, key):
         return self.db.get_ttl(key)
 
+    def count(self):
+        return self.db.key_count()
+
     def handle(self, command, args={}):
         command = command.lower()
         status = self.STATUSES['error']
