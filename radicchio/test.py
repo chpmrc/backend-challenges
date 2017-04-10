@@ -16,7 +16,7 @@ class TestRadicchio(unittest.TestCase):
             }
         }
         response = self.r.handle(**payload)
-        assert response['status'] == 'ok'
+        assert response['status'] == 'OK'
 
 
 if __name__ == '__main__':
