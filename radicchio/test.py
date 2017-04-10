@@ -1,7 +1,10 @@
 import unittest
 import time
+import mock
 from radicchio import Radicchio
 
+
+mock_time = mock.Mock()
 
 class TestRadicchio(unittest.TestCase):
 
@@ -60,7 +63,9 @@ class TestRadicchio(unittest.TestCase):
         response = self.r.handle(**payload)
         self.assertEqual(response['status'], 'ERROR')  # Not an integer
 
+    @mock.patch('time.time', mock_time)
     def test_expire(self):
+        mock_time.return_value = 1000
         payload = {
             'command': 'EXPIRE',
             'args': {
@@ -70,8 +75,8 @@ class TestRadicchio(unittest.TestCase):
         }
         response = self.r.handle(**payload)
         self.assertEqual(response['status'], 'OK', response.get('message'))
-        time.sleep(1)
         payload.update(dict(command='GET', args={'key': 'a'}))
+        mock_time.return_value = 2000
         response = self.r.handle(**payload)
         self.assertEqual(response['status'], 'OK', response.get('message'))
         self.assertEqual(response['result'], None)
