@@ -1,6 +1,8 @@
+from db import Db
+
 class Radicchio(object):
 
-    db = dict()
+    db = Db()
 
     STATUSES = {
         'ok': 'OK',
