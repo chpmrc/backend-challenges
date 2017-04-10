@@ -18,12 +18,11 @@ class Db(dict):
             'created': now,
             'ttl': None
         }
-        heappush(self._accesses, (now, key))
         self._maintain()
 
     def __getitem__(self, key):
         now = time.time()
-        self._meta[key]['last_access'] = now
+        heappush(self._accesses, (now, key))
         if self._expired(key):
             del self[key]
         return self._db[key]
@@ -32,7 +31,6 @@ class Db(dict):
     def __delitem__(self, key):
         del self._db[key]
         del self._meta[key]
-        self._maintain()
 
     def _expired(self, key):
         meta = self._meta[key]
@@ -42,12 +40,18 @@ class Db(dict):
         return ttl and now > created + ttl
 
     def _maintain(self):
-        # Like in Redis: keep evicting expired keys as long as the evicted keys are 25% of the selected ones
-        to_evict_count = self.key_count() - self.MAX_KEYS
-        items = nlargest(self._accesses, to_evict_count) if to_evict_count > 0 else []
-        for i in items:
-            key = i[1]
-            del self[key]
+        # Use a priority queue to run eviction in Om(log(n))
+        key_count = self.key_count()
+        if key_count > self.MAX_KEYS:
+            to_evict_count = key_count - int(self.MAX_KEYS / 2)
+            items = nsmallest(to_evict_count, self._accesses) if to_evict_count > 0 else []
+            for i in items:
+                key = i[1]
+                try:
+                    del self[key]
+                except KeyError:
+                    pass  # A duplicate
+            self._accesses = self._accesses[to_evict_count:]
 
     def set_ttl(self, key, ttl):
         self._meta[key] = {

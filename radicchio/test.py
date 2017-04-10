@@ -96,21 +96,22 @@ class TestRadicchio(unittest.TestCase):
         self.assertEqual(response['status'], 'OK', response.get('message'))
         self.assertEqual(response['result'], 1)
 
-    # def test_purge(self):
-    #     payload = {
-    #         'command': 'SET',
-    #         'args': {
-    #             'ttl': 1000
-    #         }
-    #     }
-    #     for i in range(10**6):
-    #         payload.update(dict(args={'keys': str(i)}))
-    #         self.r.handle(**payload)
-    #         count_payload = {
-    #             'command': 'COUNT'
-    #         }
-    #         res = self.r.handle(**count_payload)
-    #         self.assertTrue(res['result'] <= 100)
+    def test_purge(self):
+        payload = {
+            'command': 'SET'
+        }
+        count_payload = {
+            'command': 'COUNT'
+        }
+        for i in range(999):  # There's already an item
+            payload.update(dict(args={'key': str(i), 'value': i}))
+            self.r.handle(**payload)
+        res = self.r.handle(**count_payload)
+        self.assertTrue(res['result'] < 100, res['result'])
+        payload.update(dict(args={'key': str(100), 'value': 100}))
+        self.r.handle(**payload)
+        res = self.r.handle(**count_payload)
+        self.assertTrue(res['result'] < 100, res['result'])
 
 
 if __name__ == '__main__':
