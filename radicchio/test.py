@@ -10,9 +10,12 @@ class TestRadicchio(unittest.TestCase):
             'command': 'SET',
             'args': {
                 'key': 'a',
-                'value': 'b'
+                'value': 1
             }
         }
+        response = self.r.handle(**payload)
+        self.assertEqual(response['status'], 'OK')
+        payload.update(dict(args={'key': 'b', 'value': 'c'}))
         response = self.r.handle(**payload)
         self.assertEqual(response['status'], 'OK')
 
@@ -25,9 +28,9 @@ class TestRadicchio(unittest.TestCase):
         }
         response = self.r.handle(**payload)
         self.assertEqual(response['status'], 'OK')
-        self.assertEqual(response['result'], 'b')
+        self.assertEqual(response['result'], 1)
         # Try with a non-existing key
-        payload.update({'args': {'key': 'b'}})
+        payload.update({'args': {'key': '1234'}})
         response = self.r.handle(**payload)
         self.assertEqual(response['status'], 'OK')
         self.assertEqual(response['result'], None)
@@ -41,6 +44,20 @@ class TestRadicchio(unittest.TestCase):
         }
         response = self.r.handle(**payload)
         self.assertEqual(response['status'], 'OK')
+
+    def test_incr(self):
+        payload = {
+            'command': 'INCR',
+            'args': {
+                'key': 'a'
+            }
+        }
+        response = self.r.handle(**payload)
+        self.assertEqual(response['status'], 'OK')
+        self.assertEqual(response['result'], 2)
+        payload.update(dict(args={'key': 'b'}))
+        response = self.r.handle(**payload)
+        self.assertEqual(response['status'], 'ERROR')  # Not an integer
 
 
 if __name__ == '__main__':
