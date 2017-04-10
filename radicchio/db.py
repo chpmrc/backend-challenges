@@ -6,22 +6,23 @@ class Db(dict):
         self._meta = dict()
         self._db = dict()
 
-    def __setitem__(self, key, val):
+    def __setitem__(self, key, val, ttl=None):
         self._db[key] = val
+        self._meta[key] = {
+            'created': time.time(),
+            'ttl': ttl
+        }
 
     def __getitem__(self, key):
-        meta = self._meta.get(key)
+        meta = self._meta[key]
         now = time.time()
-        if meta and now > meta['created'] + meta['ttl']:
+        if meta and meta['ttl'] and now > meta['created'] + meta['ttl']:
             del self[key]
         return self._db[key]
 
     def __delitem__(self, key):
         del self._db[key]
-        try:
-            del self._meta[key]
-        except KeyError:
-            pass
+        del self._meta[key]
 
     def set_ttl(self, key, ttl):
         self._meta[key] = {
